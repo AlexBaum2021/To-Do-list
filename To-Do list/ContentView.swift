@@ -14,20 +14,23 @@ struct Task: Codable, Identifiable {
 
 
 class TaskManager: ObservableObject {
-    @Published var tasks: [Task] = []
-    private var saveTaskCancellable: AnyCancellable?
-
-    init() {
-        tasks = loadTasks()
+    @Published var tasks: [Task] = [] {
+        didSet {
+            saveTasks(tasks) // Сохраняем задачи при любом изменении
+        }
     }
 
-    func saveTasksDebounced() {
-        saveTaskCancellable?.cancel() // Отменяем предыдущий вызов
-        saveTaskCancellable = Just(tasks)
-            .delay(for: .seconds(1), scheduler: RunLoop.main)
-            .sink { _ in
-                saveTasks(self.tasks)
-            }
+    init() {
+        tasks = loadTasks() // Загружаем задачи при инициализации
+    }
+
+    func addTask(title: String, description: String, priority: String, dueDate: Date) {
+        let newTask = Task(title: title, priority: priority, dueDate: dueDate, description: description, isCompleted: false)
+        tasks.append(newTask)
+    }
+
+    func deleteTask(at offsets: IndexSet) {
+        tasks.remove(atOffsets: offsets) // Удаляем задачу
     }
 }
 
@@ -59,9 +62,9 @@ func getDocumentsDirectory() -> URL {
 
 
 struct TaskListView: View {
-    
-    @State private var isEnabled = false
-    @Binding var tasks: [Task]
+    @ObservedObject var taskManager: TaskManager
+//    @State private var isEnabled = false
+   // @Binding var tasks: [Task]
     var body: some View {
         let dateFormatter: DateFormatter = {
             let formatter = DateFormatter()
@@ -72,7 +75,7 @@ struct TaskListView: View {
             
             
             List {
-                ForEach($tasks) { $task in
+                ForEach($taskManager.tasks) { $task in
                     VStack(alignment: .leading) {
                         Text(task.title)
                             .font(.headline)
@@ -96,13 +99,12 @@ struct TaskListView: View {
                             //                            Text(task.priority)
                             Spacer()
                             Toggle(isOn: $task.isCompleted) {
-                                
                                 Text(task.isCompleted ? "Done" : "Not Done")
                                     .foregroundColor(task.isCompleted ? .green : .red)
                             }
                             .toggleStyle(SwitchToggleStyle())
                             .onChange(of: task.isCompleted) {
-                                saveTasks(tasks)
+                             //   saveTasks(tasks)
                         }
                         .font(.subheadline)
                         .foregroundColor(.gray)
@@ -113,22 +115,24 @@ struct TaskListView: View {
                     }
                     
                 }
-               .onDelete(perform: deleteTask)
+                
+              .onDelete(perform: taskManager.deleteTask)
             }
             .navigationTitle("Tasks")
             
             }
     }
     
-    func deleteTask(at offsets: IndexSet) {
-        tasks.remove(atOffsets: offsets)
-        saveTasks(tasks)
-    }
+//    func deleteTask(at offsets: IndexSet) {
+//        tasks.remove(atOffsets: offsets)
+////        //saveTasks(tasks)
+//    }
     
 }
 
 struct AddTaskView: View {
-    @Binding var tasks: [Task]
+//    @Binding var tasks: [Task]
+    @ObservedObject var taskManager: TaskManager
     @Binding var selectedTab: Int
     @State private var navigateToTasks = false
     @State private var newTask: String = ""
@@ -171,14 +175,18 @@ struct AddTaskView: View {
                     
                     if !newTask.isEmpty {
                         
-                        let addTask = Task(title: newTask,
-                                           priority: selectedPriority,
-                                           dueDate: dueDate,
-                                           description: newDescription,
-                                           isCompleted: false)
-                        tasks.append(addTask)
+//                        let addTask = Task(title: newTask,
+//                                           description: newDescription,
+//                                           priority: selectedPriority,
+//                                           dueDate: dueDate,
+//                                                isCompleted: false)
+                        //tasks.append(addTask)
+                        taskManager.addTask(title: newTask,
+                                            description: newDescription,
+                                            priority: selectedPriority,
+                                            dueDate: dueDate)
                         navigateToTasks = true
-                       saveTasks(tasks)
+                       //saveTasks(tasks)
                         selectedTab = 0
                         newTask = ""
                         newDescription = ""
@@ -206,7 +214,8 @@ struct AddTaskView: View {
 
 
 struct ContentView: View {
-    @State private var tasks: [Task] = []
+//    @State private var tasks: [Task] = []
+    @StateObject private var taskManager = TaskManager()
     @State private var selectedTab = 0
     var body: some View {
      
@@ -214,14 +223,14 @@ struct ContentView: View {
             
         TabView(selection: $selectedTab) {
                     
-                    TaskListView(tasks: $tasks)
+                    TaskListView(taskManager: taskManager)
                         .tabItem {
                             Label("Tasks", systemImage: "list.bullet")
                         }
                         .tag(0)
 
                   
-                    AddTaskView(tasks: $tasks, selectedTab: $selectedTab)
+                    AddTaskView(taskManager: taskManager, selectedTab: $selectedTab)
                         .tabItem {
                             Label("Add Task", systemImage: "plus.circle")
                         }
@@ -230,9 +239,9 @@ struct ContentView: View {
             
 
         .padding()
-        .onAppear {
-            tasks = loadTasks()
-        }
+//        .onAppear {
+//            tasks = loadTasks()
+//        }
         
     }
     
