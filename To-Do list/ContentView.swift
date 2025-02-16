@@ -1,5 +1,5 @@
 import SwiftUI
-import Combine
+//import Combine
 
 
 struct Task: Codable, Identifiable {
@@ -10,8 +10,26 @@ struct Task: Codable, Identifiable {
     var description: String
     var isCompleted: Bool
 }
+func getPriorities (defaultValue: Bool = false) -> [String] {
+     return defaultValue ? ["Medium"] : ["Low", "Medium", "High"]
+}
+extension View {
+    func borderedField() -> some View {
+        self
+            .border(Color.blue, width: 1)
+            .padding()
+    }
+}
 
 class TaskManager: ObservableObject {
+//    enum TaskPriority: String, CaseIterable {
+//        case low = "Low"
+//        case medium = "Medium"
+//        case high = "High"
+//    }
+   
+    
+    
     @Published var tasks: [Task] = [] {
         didSet {
             saveTasks(tasks)
@@ -64,201 +82,25 @@ extension DateFormatter {
     }()
 }
 
-struct TaskListView: View {
-    @State private var selectedTask: Task?
-    @ObservedObject var taskManager: TaskManager
-    @Binding var selectedTab: Int
-    var body: some View {
-        
-        List {
-            ForEach($taskManager.tasks) { $task in
-                HStack (alignment: .center)  {
-                    VStack(alignment: .leading) {
-                        Text(task.title)
-                            .font(.headline)
-                        Text(task.description)
-                            .font(.body)
-                        HStack {
-                            Text(task.priority)
-                            Spacer()
-                            Text(" \(DateFormatter.taskDateFormatter.string(from: task.dueDate))")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        
-                        Spacer()
-                        
-                        HStack {
-                            
-                            
-                            
-                            Spacer()
-                            Toggle(isOn: $task.isCompleted) {
-                                Text(task.isCompleted ? "Done" : "Not Done")
-                                    .foregroundColor(task.isCompleted ? .green : .gray)
-                            }
-                            .toggleStyle(SwitchToggleStyle())
-                            
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                            
-                        }
-                        
-                    }
-                    .layoutPriority(1)
-                    Divider()
-                    NavigationLink(destination: EditTaskView(task: $task)) {}
-                    .padding(.trailing)
-                    
-                }
-                .frame(maxWidth: .infinity)
-            }
-            .onDelete(perform: taskManager.deleteTask)
-        }
-        .navigationTitle("Tasks")
-        .listStyle(InsetListStyle())
-        
-    }
-}
 
 
 
-struct AddTaskView: View {
-    
-    @ObservedObject var taskManager: TaskManager
-    @Binding var selectedTab: Int
-    @State private var newTask: String = ""
-    @State private var newDescription: String = ""
-    @State private var selectedPriority = "Medium"
-    @State private var dueDate = Date()
-    let priorities = ["Low", "Medium", "High"]
-    
-    var body: some View {
-        
-        
-        VStack {
-            
-            
-            TextField("Enter new title", text: $newTask)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            
-            TextEditor(text: $newDescription)
-                .frame(height: 200)
-                .border(Color.gray, width: 1)
-                .padding()
-            
-            HStack {
-                Picker(selection: $selectedPriority, label: Text("Priority")) {
-                    ForEach(priorities, id: \.self) { priority in
-                        Text(priority)
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                Spacer()
-                DatePicker("", selection: $dueDate, displayedComponents: [.date])
-                    .datePickerStyle(CompactDatePickerStyle())
-                
-            }
-            
-            Button(action: {
-                guard !newTask.isEmpty else { return }
-                
-                taskManager.addTask(title: newTask,
-                                    description: newDescription,
-                                    priority: selectedPriority,
-                                    dueDate: dueDate)
-                selectedTab = 0
-                newTask = ""
-                newDescription = ""
-                selectedPriority = "Medium"
-                dueDate = Date()
-            }) {
-                Text("Add Task")
-                    .padding()
-                    .foregroundColor(.white)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
-            .padding()
-            
-            Spacer()
-        }
-        .navigationTitle("Add Task")
-        
-    }
-}
 
-struct EditTaskView: View {
-    @Binding var task: Task
-    @Environment(\.dismiss) var dismiss
-
-    let priorities = ["Low", "Medium", "High"]
-    
-       
-    var body: some View {
-        VStack {
-            TextField("Task Title", text: $task.title)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-                .foregroundColor(task.title.isEmpty ? Color.red : Color.blue)
-                .border(task.title.isEmpty ? Color.red : Color.white, width: 1)
-            
-            TextEditor(text: $task.description)
-                .frame(height: 200)
-                .border(Color.gray, width: 1)
-                .padding()
-            
-            HStack {
-                Picker("Priority", selection: $task.priority) {
-                    ForEach(priorities, id: \.self) { priority in
-                        Text(priority)
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                
-                Spacer()
-                
-                DatePicker("Due Date", selection: $task.dueDate, displayedComponents: .date)
-                    .datePickerStyle(CompactDatePickerStyle())
-            }
-            .padding()
-            
-            Button(action: {
-                guard !task.title.isEmpty else { return }
-               
-                dismiss()
-            }) {
-                Text("Save Changes")
-                    .padding()
-                    .foregroundColor(.white)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
-            .padding()
-            
-            Spacer()
-        }
-        .navigationTitle("Edit Task")
-    }
-}
 
 struct ContentView: View {
-    @StateObject private var taskManager = TaskManager()
+    //@StateObject private var taskManager = TaskManager()
     @State private var selectedTab = 0
     var body: some View {
         NavigationStack {
             TabView(selection: $selectedTab) {
                 
-                TaskListView(taskManager: taskManager, selectedTab: $selectedTab)
+                TaskListView(selectedTab: $selectedTab)
                     .tabItem {
                         Label("Tasks", systemImage: "list.bullet")
                     }
                     .tag(0)
                 
-                AddTaskView(taskManager: taskManager, selectedTab: $selectedTab)
+                AddTaskView(selectedTab: $selectedTab)
                     .tabItem {
                         Label("Add Task", systemImage: "plus.circle")
                     }
@@ -266,6 +108,7 @@ struct ContentView: View {
             }
             .padding()
         }
+        .environmentObject(TaskManager())
     }
     
 }

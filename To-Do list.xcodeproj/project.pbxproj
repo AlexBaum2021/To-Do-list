@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FBBECB5C2CD0E6C600FAF727 /* SwiftRichString in Frameworks */ = {isa = PBXBuildFile; productRef = FBBECB5B2CD0E6C600FAF727 /* SwiftRichString */; };
+		FBBECB5F2CD0E82400FAF727 /* RichTextKit in Frameworks */ = {isa = PBXBuildFile; productRef = FBBECB5E2CD0E82400FAF727 /* RichTextKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		FB2B4FA82CC006D800292B1C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FBBECB5F2CD0E82400FAF727 /* RichTextKit in Frameworks */,
+				FBBECB5C2CD0E6C600FAF727 /* SwiftRichString in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +119,8 @@
 			);
 			name = "To-Do list";
 			packageProductDependencies = (
+				FBBECB5B2CD0E6C600FAF727 /* SwiftRichString */,
+				FBBECB5E2CD0E82400FAF727 /* RichTextKit */,
 			);
 			productName = "To-Do list";
 			productReference = FB2B4F972CC006D600292B1C /* To-Do list.app */;
@@ -195,6 +204,10 @@
 			);
 			mainGroup = FB2B4F8E2CC006D600292B1C;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				FBBECB5A2CD0E66A00FAF727 /* XCRemoteSwiftPackageReference "SwiftRichString" */,
+				FBBECB5D2CD0E82400FAF727 /* XCRemoteSwiftPackageReference "RichTextKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FB2B4F982CC006D600292B1C /* Products */;
 			projectDirPath = "";
@@ -552,6 +565,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FBBECB5A2CD0E66A00FAF727 /* XCRemoteSwiftPackageReference "SwiftRichString" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/malcommac/SwiftRichString";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.7.2;
+			};
+		};
+		FBBECB5D2CD0E82400FAF727 /* XCRemoteSwiftPackageReference "RichTextKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/danielsaidi/RichTextKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FBBECB5B2CD0E6C600FAF727 /* SwiftRichString */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FBBECB5A2CD0E66A00FAF727 /* XCRemoteSwiftPackageReference "SwiftRichString" */;
+			productName = SwiftRichString;
+		};
+		FBBECB5E2CD0E82400FAF727 /* RichTextKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FBBECB5D2CD0E82400FAF727 /* XCRemoteSwiftPackageReference "RichTextKit" */;
+			productName = RichTextKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FB2B4F8F2CC006D600292B1C /* Project object */;
 }
